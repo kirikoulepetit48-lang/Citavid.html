@@ -239,11 +239,20 @@
   const quoteInput = document.getElementById("quoteInput");
   const quoteCount = document.getElementById("quoteCount");
   const next1 = document.getElementById("next1");
-  quoteInput.addEventListener("input", () => {
+  function updateQuoteCount(){
     const len = quoteInput.value.length;
     quoteCount.textContent = len + " / 220";
     next1.disabled = len < 3;
+  }
+  ["input","paste","keyup","change","cut"].forEach(evt => {
+    quoteInput.addEventListener(evt, () => {
+      updateQuoteCount();
+      // some Android keyboards / clipboard panels update value AFTER the event fires
+      setTimeout(updateQuoteCount, 30);
+      setTimeout(updateQuoteCount, 150);
+    });
   });
+  updateQuoteCount();
   next1.addEventListener("click", () => {
     state.quote = quoteInput.value.trim();
     showStep(2);
@@ -455,13 +464,4 @@
       recorder = new MediaRecorder(stream);
     }
     const chunks = [];
-    recorder.ondataavailable = e => { if(e.data.size>0) chunks.push(e.data); };
-    recorder.onstop = () => {
-      if(audioCtx) audioCtx.close();
-      const blob = new Blob(chunks, {type:"video/webm"});
-      videoBlobUrl = URL.createObjectURL(blob);
-      finishGeneration();
-    };
-
-    recorder.start();
-    genStatus.textContent = "Gén
+    recorder.ondataavaila
